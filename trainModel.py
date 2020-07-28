@@ -58,14 +58,18 @@ def main():
     print_summary(model)
     features, labels = loadFromPickle()
     features, labels = shuffle(features, labels)
-    labels=prepress_labels(labels)
+    labels = prepress_labels(labels)
     print(labels.shape)
-    train_x, test_x, train_y, test_y = train_test_split(features, labels, random_state=0,
-                                                        test_size=0.1)
+    train_x, test_x, train_y, test_y = train_test_split(features, labels, random_state=1,
+                                                        test_size=0.2)
+    train_x, valid_x, train_y, valid_y = train_test_split(train_x, train_y, test_size=0.20, random_state=1)
     train_x = train_x.reshape(train_x.shape[0], 28, 28, 1)
     test_x = test_x.reshape(test_x.shape[0], 28, 28, 1)
-    model.fit(train_x, train_y, validation_data=(test_x, test_y), epochs=25, batch_size=64,
+    valid_x = valid_x.reshape(test_x.shape[0], 28, 28, 1)
+    model.fit(train_x, train_y, validation_data=(valid_x, valid_y), epochs=25, batch_size=64,
               callbacks=[TensorBoard(log_dir="QuickDraw")])
+    res = model.evaluate(test_x, test_y, batch_size=64)
+    print("Loss, acc:", res)
     model.save('QuickDraw.h5')
 
 
