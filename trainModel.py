@@ -75,7 +75,7 @@ def main():
     print(labels.shape)
     train_x, test_x, train_y, test_y = train_test_split(features, labels, random_state=1,
                                                         test_size=0.2)
-    train_x, valid_x, train_y, valid_y = train_test_split(train_x, train_y, test_size=0.20, random_state=1)
+    train_x, valid_x, train_y, valid_y = train_test_split(train_x, train_y, test_size=0.25, random_state=1)
     train_x = train_x.reshape(train_x.shape[0], 28, 28, 1)
     test_x = test_x.reshape(test_x.shape[0], 28, 28, 1)
     valid_x = valid_x.reshape(test_x.shape[0], 28, 28, 1)
