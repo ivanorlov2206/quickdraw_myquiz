@@ -18,9 +18,18 @@ BATCH_SIZE = 15
 def keras_model(image_x, image_y):
     num_of_classes = BATCH_SIZE
     model = Sequential()
-    model.add(Flatten(input_shape=(image_x, image_y, 1)))
-    model.add(Dense(512, activation="relu"))
+    model.add(Conv2D(32, (5, 5), input_shape=(image_x, image_y, 1), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'))
+    model.add(Conv2D(64, (5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'))
+
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(Dropout(0.6))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.6))
     model.add(Dense(num_of_classes, activation='softmax'))
+
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     filepath = "QuickDraw.h5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
