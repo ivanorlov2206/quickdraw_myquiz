@@ -3,3 +3,5 @@ features
 labels
 data/*
 venv/
+features_ex
+labels_ex
