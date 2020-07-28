@@ -51,7 +51,7 @@ def keras_process_image(img):
 
 
 if __name__ == '__main__':
-    print(classif("test.png"))
+    print(classif("pp.png"))
     # 1 thread 18.429327726364136 seconds
     # 2 threads 11.09047245979309 seconds
     # 3 threads 9.253944873809814 seconds
