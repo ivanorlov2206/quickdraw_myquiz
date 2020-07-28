@@ -50,6 +50,9 @@ def keras_process_image(img):
 
 
 
+keras_predict(model, np.zeros((50, 50, 1), dtype=np.uint8))
+
+
 if __name__ == '__main__':
     print(classif("test.png"))
     # 1 thread 18.429327726364136 seconds
