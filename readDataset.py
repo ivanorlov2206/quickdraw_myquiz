@@ -16,6 +16,7 @@ def load_data():
         file = "data/" + file
         x = np.load(file)
         x = x[0:10000, :]
+        print(x[0])
         x = x.astype('float32') / 255.
         bts += sys.getsizeof(x)
         x_load.append(x)

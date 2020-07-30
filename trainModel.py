@@ -6,14 +6,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from keras.layers import Dense,Flatten, Conv2D
 from keras.layers import MaxPooling2D, Dropout
+import quickdraw_api
 from keras.utils import np_utils, print_summary
 import tensorflow as tf
 from keras.models import Sequential
 from keras.callbacks import ModelCheckpoint
 import pickle
+
 from keras.callbacks import TensorBoard
 
 BATCH_SIZE = 15
+classes = ['book', 'sun', 'banana', 'apple', 'bowtie', 'ice cream', 'eye', 'square', 'door', 'sword', 'star', 'fish', 'bucket', 'donut', 'mountain']
+
 
 def keras_model(image_x, image_y):
     num_of_classes = BATCH_SIZE
@@ -46,6 +50,14 @@ def augmentData(features, labels):
 def prepress_labels(labels):
     labels = np_utils.to_categorical(labels)
     return labels
+
+def batch_gen():
+    counter = 0
+    while True:
+        name = classes[counter]
+        print("Class name:", name)
+        counter = (counter + 1) % len(classes)
+
 
 
 def get_eval(y_true, y_prob):

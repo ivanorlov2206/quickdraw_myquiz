@@ -4,7 +4,7 @@ import os
 import random
 import urllib.request
 
-import quickdraw
+import quickdraw_api
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
@@ -26,7 +26,7 @@ def classif():
     with open(fname, "wb") as f:
         f.write(resp.file.read())
         f.close()
-    res = quickdraw.classif(fname)
+    res = quickdraw_api.classif(fname)
     os.remove(fname)
     return res
 

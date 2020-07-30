@@ -5,3 +5,5 @@ data/*
 venv/
 features_ex
 labels_ex
+idea/*
+__pycache__/*
