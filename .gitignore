@@ -4,5 +4,5 @@ labels
 data/*
 venv/
 QuickDraw/*
-idea/*
+.idea/*
 __pycache__/*

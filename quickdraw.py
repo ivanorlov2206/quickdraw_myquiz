@@ -10,8 +10,7 @@ from PIL import Image
 
 model = load_model('QuickDraw.h5')
 
-classes = ['book.npy', 'sun.npy', 'banana.npy', 'apple.npy', 'bowtie.npy', 'ice cream.npy', 'eye.npy', 'square.npy', 'door.npy', 'sword.npy', 'star.npy', 'fish.npy', 'bucket.npy', 'donut.npy', 'mountain.npy']
-
+classes = ['book', 'sun', 'banana', 'apple', 'bowtie', 'ice cream', 'eye', 'square', 'door', 'sword', 'star', 'fish', 'bucket', 'donut', 'mountain']
 
 def classif(fname):
     # ------------ image preprocessing ---------------------
