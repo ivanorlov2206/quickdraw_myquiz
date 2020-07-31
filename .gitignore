@@ -7,3 +7,4 @@ QuickDraw/*
 .idea/*
 __pycache__/*
 .quickdrawcache/*
+*.h5
