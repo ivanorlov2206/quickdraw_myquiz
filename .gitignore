@@ -6,3 +6,4 @@ venv/
 QuickDraw/*
 .idea/*
 __pycache__/*
+.quickdrawcache/*
