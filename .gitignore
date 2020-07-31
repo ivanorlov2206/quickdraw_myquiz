@@ -5,6 +5,7 @@ data/*
 venv/
 features_ex
 labels_ex
-idea/*
+.idea/*
 __pycache__/*
 .quickdrawcache/*
+QuickDraw/*
