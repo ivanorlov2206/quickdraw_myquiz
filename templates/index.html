@@ -3,7 +3,7 @@
     <meta charset="utf-8">
 </head>
 <body>
-    <canvas id="canv" width="640" height="480" style="background-color: #000000;"></canvas><br>
+    <canvas id="canv" width="640" height="480" style="background-color: #000000; border: 1px solid black;"></canvas><br>
     <button id="send">Определить</button><button id="clear">Стереть</button><br><br>
     <span style="font-size: 25dp" id="result"></span><br><br>
 
@@ -14,7 +14,7 @@
 
         var w = canvas.width;
         var h = canvas.height;
-        context.fillStyle = "black";
+        context.fillStyle = "white";
         context.fillRect(0, 0, w, h);
 
         var mouse = {x: 0, y: 0};
@@ -30,9 +30,9 @@
                 mouse.x = e.pageX - this.offsetLeft;
                 mouse.y = e.pageY - this.offsetTop;
 
-                context.fillStyle = "white";
+                context.fillStyle = "black";
                 context.beginPath();
-                context.ellipse(mouse.x, mouse.y, 6, 6, 0, 0, 2 * Math.PI);
+                context.ellipse(mouse.x, mouse.y, 4, 4, 0, 0, 2 * Math.PI);
                 context.fill();
             }
         });
@@ -43,7 +43,7 @@
         });
         var clear = document.getElementById("clear");
         clear.addEventListener("click", function() {
-            context.fillStyle = "black";
+            context.fillStyle = "white";
             context.fillRect(0, 0, w, h);
         });
 

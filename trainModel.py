@@ -1,96 +1,38 @@
 import numpy as np
 from keras import Input, Model
-from sklearn import metrics
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
-from keras.layers import Dense,Flatten, Conv2D
-from keras.layers import MaxPooling2D, Dropout
-import quickdraw_api
-from keras.utils import np_utils, print_summary
-import tensorflow as tf
-from keras.models import Sequential
-from keras.callbacks import ModelCheckpoint
-import pickle
-
+from keras.applications import MobileNet
+from keras.applications.mobilenet import preprocess_input
+from keras_preprocessing.image import ImageDataGenerator
+from keras.layers import Dense, Flatten, Conv2D, GlobalAveragePooling2D
 from keras.callbacks import TensorBoard
 
 BATCH_SIZE = 15
 classes = ['book', 'sun', 'banana', 'apple', 'bowtie', 'ice cream', 'eye', 'square', 'door', 'sword', 'star', 'fish', 'bucket', 'donut', 'mountain']
 
 
-def keras_model(image_x, image_y):
-    num_of_classes = BATCH_SIZE
-    model = Sequential()
-    model.add(Flatten(input_shape=(image_x, image_y, 1)))
-    model.add(Dense(512, activation="relu"))
-    model.add(Dense(num_of_classes, activation='softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    filepath = "QuickDraw.h5"
-    checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-    callbacks_list = [checkpoint]
-
-    return model, callbacks_list
-
-def loadFromPickle(ff, lf):
-    with open(ff, "rb") as f:
-        features = np.array(pickle.load(f))
-    with open(lf, "rb") as f:
-        labels = np.array(pickle.load(f))
-
-    return features, labels
-
-
-def augmentData(features, labels):
-    features = np.append(features, features[:, :, ::-1], axis=0)
-    labels = np.append(labels, -labels, axis=0)
-    return features, labels
-
-
-def prepress_labels(labels):
-    labels = np_utils.to_categorical(labels)
-    return labels
-
-def batch_gen():
-    counter = 0
-    while True:
-        name = classes[counter]
-        print("Class name:", name)
-        counter = (counter + 1) % len(classes)
-
-
-
-def get_eval(y_true, y_prob):
-    y_pred = np.argmax(y_prob, -1)
-    output = {}
-    output['accuracy'] = metrics.accuracy_score(y_true, y_pred)
-    output['loss'] = metrics.log_loss(y_true, y_prob)
-    output['confusion_matrix'] = str(metrics.confusion_matrix(y_true, y_pred))
-    return output
 
 def main():
-    model, callbacks_list = keras_model(28, 28)
-    print_summary(model)
-    features, labels = loadFromPickle("features", "labels")
-    features, labels = shuffle(features, labels)
-    labels=prepress_labels(labels)
-    print(labels.shape)
-    train_x, valid_x, train_y, valid_y = train_test_split(features, labels, random_state=1,
-                                                        test_size=0.1)
-    train_x = train_x.reshape(train_x.shape[0], 28, 28, 1)
-    valid_x = valid_x.reshape(valid_x.shape[0], 28, 28, 1)
-    model.fit(train_x, train_y, validation_data=(valid_x, valid_y), epochs=25, batch_size=64,
-              callbacks=[TensorBoard(log_dir="QuickDraw")])
-    features_ex, labels_ex = loadFromPickle("features_ex", "labels_ex")
-    features_ex, labels_ex = shuffle(features_ex, labels_ex)
-    features_ex = features_ex.reshape(features_ex.shape[0], 28, 28, 1)
-    labels_ex = prepress_labels(labels_ex)
-    print(labels_ex.shape)
+    base_model = MobileNet(weights="imagenet", include_top=False)
 
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(1024, activation='relu')(x)
+    x = Dense(1024, activation='relu')(x)
+    x = Dense(512, activation='relu')(x)
+    preds = Dense(15, activation='softmax')(x)
 
-    res = model.evaluate(features_ex, labels_ex, batch_size=64)
-    print("Loss, acc:", res)
-    model.save('QuickDraw.h5')
+    model = Model(inputs=base_model.inputs, outputs=preds)
+    for layer in model.layers[:20]:
+        layer.trainable = False
+    for layer in model.layers[20:]:
+        layer.trainable = True
+    train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
+    train_generator = train_datagen.flow_from_directory("./data/", target_size=(224, 224), color_mode='rgb', batch_size=8, class_mode='categorical', shuffle=True)
+    model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    step_size_train = train_generator.n // train_generator.batch_size
+    model.fit_generator(train_generator, steps_per_epoch=step_size_train, epochs=5)
+
+    model.save("model.h5")
 
 main()
