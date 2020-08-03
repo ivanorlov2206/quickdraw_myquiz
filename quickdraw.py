@@ -44,6 +44,9 @@ def keras_process_image(img):
     image_y = 28
     img = cv2.resize(img, (image_x, image_y))
     img = np.array(img, dtype=np.float32)
+    img = img / 255.
+    img = np.where(img, 1, 0)
+    print(np.reshape(img, (28, 28)))
     img = np.reshape(img, (-1, image_x, image_y, 1))
     return img
 

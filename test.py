@@ -1,6 +1,7 @@
 import os
 
 import cv2
+import numpy as np
 
 import quickdraw
 
@@ -17,6 +18,13 @@ for file in files:
     digit2 = cv2.imread(fname)
     blackboard_gray = cv2.cvtColor(digit2, cv2.COLOR_BGR2GRAY)
     blackboard_gray = 255 - blackboard_gray
+    image_x = 28
+    image_y = 28
+    img = cv2.resize(blackboard_gray, (image_x, image_y))
+    img = np.array(img, dtype=np.float32)
+    img = img / 255.
+    img = np.where(img, 1, 0)
+    print(np.reshape(img, (28, 28)), file)
     #cv2.imshow('', blackboard_gray)
     #cv2.waitKey()
     predicted = quickdraw.classes[quickdraw.keras_predict(quickdraw.model, blackboard_gray)[1]]
@@ -26,4 +34,5 @@ for file in files:
     else:
         fp += 1
     print(tp + fp, "/", allp)
+
 print("Accuracy:", tp / allp * 100, "%")
