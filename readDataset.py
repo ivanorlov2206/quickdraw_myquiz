@@ -30,7 +30,7 @@ def load_data():
 
     return x_load, y_load
 
-print(files)
+print([file[:file.find('.')] for file in files])
 features, labels = load_data()
 features = np.array(features).astype('float32')
 labels = np.array(labels).astype('float32')
