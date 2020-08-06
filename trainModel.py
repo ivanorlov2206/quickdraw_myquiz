@@ -82,6 +82,7 @@ def main():
     model.fit(train_x, train_y, validation_data=(valid_x, valid_y), epochs=25, batch_size=64,
               callbacks=[TensorBoard(log_dir="QuickDraw")])
     res = model.evaluate(test_x, test_y, batch_size=64)
+
     print("Loss, acc:", res)
     model.save('QuickDraw.h5')
 

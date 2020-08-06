@@ -10,7 +10,6 @@ def crop(img):
     w, h = img.shape
     cx = 0
     cy = 0
-    print(w, h, img[223][63])
     for j in range(h):
         for i in range(w):
             if img[j][i] != 0 and i > cx:
@@ -21,17 +20,16 @@ def crop(img):
                 cy = j
 
     print(cy, cx)
-    return img[:cy, :cx]
+    return img[:, :cx]
 
 
-classes = ['book', 'sun', 'banana', 'apple', 'bowtie', 'ice cream', 'eye', 'square', 'cup', 'door', 'sword', 'star', 'fish', 'donut', 'mountain']
 data_folder = '/home/mineorpe/work/restests/data/'
 files = os.listdir(data_folder)
 fp = 0
 tp = 0
 allp = len(files)
 for file in files:
-    imgc = classes[int(file.split("(")[0])]
+    imgc = quickdraw.classes[int(file.split("(")[0])]
     fname = data_folder + file
     digit2 = cv2.imread(fname)
     blackboard_gray = cv2.cvtColor(digit2, cv2.COLOR_BGR2GRAY)
@@ -41,19 +39,19 @@ for file in files:
     #print(np.reshape(img, (28, 28)), file)
     #cv2.imshow('', blackboard_gray)
     #cv2.waitKey()
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (12, 12))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
     dilate = cv2.dilate(blackboard_gray, kernel, iterations=1)
     dilate = crop(dilate)
-    #cv2.imshow('1', dilate)
-    #cv2.waitKey()
-    cv2.imwrite('img2.png', dilate)
-    #print(quickdraw.classif('img2.png'))
+    new_img = np.zeros((255, 255, 1), np.uint8)
+
+
     predicted = quickdraw.classes[quickdraw.keras_predict(quickdraw.model, dilate)[1]]
     if predicted == imgc:
         tp += 1
     else:
         fp += 1
-    print(tp + fp, "/", allp, "Predicted:", predicted, "True:", imgc)
-    #break
+    print(tp, "/", fp, "/", allp, "Predicted:", predicted, "True:", imgc)
+    if fp + tp > 10:
+        break
 
-print("Accuracy:", tp / allp * 100, "%")
+print("Accuracy:", tp / (tp + fp) * 100, "%")

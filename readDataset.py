@@ -17,8 +17,9 @@ def load_data():
         x = np.load(file)
         x = x[0:10000, :]
         x = x.astype('float32') / 255.
-        x = np.where(x, 1, 0)
-        print(x[0].reshape((28, 28)))
+        x = (x > 0) * 1
+
+        print(x[7000].reshape((28, 28)))
         bts += sys.getsizeof(x)
         x_load.append(x)
         y = [count for _ in range(10000)]

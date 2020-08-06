@@ -30,11 +30,28 @@ def classif(fname):
         if cv2.contourArea(cnt) > 2000:
             x, y, w, h = cv2.boundingRect(cnt)
             digit = blackboard_gray[y:y + h, x:x + w]
-            #cv2.imshow('12', digit)
-            #cv2.waitKey()
-            pred_probab, pred_class = keras_predict(model, digit)
+            pred_probab, pred_class = keras_predict(model, pre_image(digit))
     return classes[pred_class]
 
+
+
+def pre_image(img):
+    h, w = img.shape
+    nw = w
+    nh = h
+    if w > h:
+        nh = int(224 / w * h)
+        nw = 224
+        print(12121)
+    else:
+        nw = int(224 / h * w)
+        nh = 224
+    img = cv2.resize(img, (nw, nh))
+    iy = (224 - nh) // 2
+    ix = (224 - nw) // 2
+    nimg = np.zeros((224, 224), dtype=np.uint8)
+    nimg[iy:iy + nh, ix:ix + nw] = img
+    return nimg
 
 
 def keras_predict(model, image):
@@ -49,9 +66,8 @@ def keras_process_image(img):
     image_y = 28
     img = cv2.resize(img, (image_x, image_y))
     img = np.array(img, dtype=np.float32)
-    img = img / 255.
-    img = np.where(img, 1, 0)
-    #print(img)
+    img = (img > 0) * 1
+    print(img)
     img = np.reshape(img, (-1, image_x, image_y, 1))
     return img
 
