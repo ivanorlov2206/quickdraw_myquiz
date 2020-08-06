@@ -3,3 +3,4 @@ features
 labels
 data/*
 venv/
+.idea/
