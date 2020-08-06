@@ -15,13 +15,14 @@ def load_data():
     for file in files:
         file = "data/" + file
         x = np.load(file)
-        x = x[0:20000, :]
+        x = x[0:10000, :]
         x = x.astype('float32') / 255.
-        x = np.where(x, 1, 0)
-        print(x[0].reshape((28, 28)))
+        x = (x > 0) * 1
+
+        print(x[7000].reshape((28, 28)))
         bts += sys.getsizeof(x)
         x_load.append(x)
-        y = [count for _ in range(20000)]
+        y = [count for _ in range(10000)]
         count += 1
         y = np.array(y).astype('float32')
         y = y.reshape(y.shape[0], 1)
@@ -30,7 +31,7 @@ def load_data():
 
     return x_load, y_load
 
-print(files)
+print([file[:file.find('.')] for file in files])
 features, labels = load_data()
 features = np.array(features).astype('float32')
 labels = np.array(labels).astype('float32')
