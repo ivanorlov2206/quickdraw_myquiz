@@ -10,7 +10,10 @@ from PIL import Image
 
 model = load_model('QuickDraw.h5')
 
-classes = ['book', 'sun', 'banana', 'apple', 'bowtie', 'ice cream', 'eye', 'square', 'door', 'sword', 'star', 'fish', 'bucket', 'donut', 'mountain']
+classes = ['book', 'sun', 'banana', 'apple', 'bowtie', 'ice cream', 'eye', 'square', 'cup', 'door', 'sword', 'star', 'fish', 'donut', 'mountain']
+
+
+
 
 def classif(fname):
     # ------------ image preprocessing ---------------------
@@ -18,7 +21,7 @@ def classif(fname):
     blackboard_gray = cv2.cvtColor(digit2, cv2.COLOR_BGR2GRAY)
     blur1 = cv2.medianBlur(blackboard_gray, 15)
     blur1 = cv2.GaussianBlur(blur1, (5, 5), 0)
-    thresh1 = cv2.threshold(blur1, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    thresh1 = cv2.threshold(blur1, 127, 255, cv2.THRESH_BINARY)[1]
     # -------------- image segmentation----------------------
     blackboard_cnts = cv2.findContours(thresh1.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
     if len(blackboard_cnts) >= 1:
@@ -27,9 +30,28 @@ def classif(fname):
         if cv2.contourArea(cnt) > 2000:
             x, y, w, h = cv2.boundingRect(cnt)
             digit = blackboard_gray[y:y + h, x:x + w]
-            pred_probab, pred_class = keras_predict(model, digit)
+            pred_probab, pred_class = keras_predict(model, pre_image(digit))
     return classes[pred_class]
 
+
+
+def pre_image(img):
+    h, w = img.shape
+    nw = w
+    nh = h
+    if w > h:
+        nh = int(224 / w * h)
+        nw = 224
+        print(12121)
+    else:
+        nw = int(224 / h * w)
+        nh = 224
+    img = cv2.resize(img, (nw, nh))
+    iy = (224 - nh) // 2
+    ix = (224 - nw) // 2
+    nimg = np.zeros((224, 224), dtype=np.uint8)
+    nimg[iy:iy + nh, ix:ix + nw] = img
+    return nimg
 
 
 def keras_predict(model, image):
@@ -44,16 +66,13 @@ def keras_process_image(img):
     image_y = 28
     img = cv2.resize(img, (image_x, image_y))
     img = np.array(img, dtype=np.float32)
-    img = img / 255.
-    img = np.where(img, 1, 0)
-    print(np.reshape(img, (28, 28)))
+    img = (img > 0) * 1
+    print(img)
     img = np.reshape(img, (-1, image_x, image_y, 1))
     return img
 
 
-
 keras_predict(model, np.zeros((50, 50, 1), dtype=np.uint8))
-
 
 if __name__ == '__main__':
     print(classif("test.png"))
