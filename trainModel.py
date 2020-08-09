@@ -18,17 +18,26 @@ BATCH_SIZE = 15
 def keras_model(image_x, image_y):
     num_of_classes = BATCH_SIZE
     model = Sequential()
-    model.add(Conv2D(32, (5, 5), input_shape=(image_x, image_y, 1), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'))
-    model.add(Conv2D(64, (5, 5), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'))
+    model.add(Conv2D(32, (3, 3), strides=1, padding="same", activation="relu", input_shape=(28, 28, 1)))
+    model.add(Dropout(0.4))
+    model.add(Conv2D(32, (3, 3), strides=1, padding="same", activation="relu"))
+    model.add(Dropout(0.4))
+    model.add(MaxPooling2D((2, 2)))
+
+    model.add(Conv2D(64, (3, 3), strides=1, padding="same", activation="relu"))
+    model.add(Dropout(0.4))
+    model.add(Conv2D(64, (3, 3), strides=1, padding="same", activation="relu"))
+    model.add(Dropout(0.4))
+    model.add(MaxPooling2D((2, 2)))
+
+    model.add(Conv2D(128, (3, 3), strides=1, padding="same", activation="relu"))
+    model.add(Dropout(0.4))
+    model.add(Conv2D(128, (3, 3), strides=1, padding="same", activation="relu"))
+    model.add(Dropout(0.4))
+    model.add(MaxPooling2D((2, 2)))
 
     model.add(Flatten())
-    model.add(Dense(512, activation='relu'))
-    model.add(Dropout(0.6))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.6))
-    model.add(Dense(num_of_classes, activation='softmax'))
+    model.add(Dense(num_of_classes, activation="softmax"))
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     filepath = "QuickDraw.h5"
