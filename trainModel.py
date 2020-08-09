@@ -4,7 +4,7 @@ from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
-from keras.layers import Dense,Flatten, Conv2D
+from keras.layers import Dense, Flatten, Conv2D, BatchNormalization, Activation, add
 from keras.layers import MaxPooling2D, Dropout
 from keras.utils import np_utils, print_summary
 import tensorflow as tf
@@ -15,29 +15,47 @@ from keras.callbacks import TensorBoard
 
 BATCH_SIZE = 15
 
+
+stride = 1
+CHANNEL_AXIS = 3
+
+def res_layer(x, filters, pooling=False, dropout=0.0):
+    temp = x
+    temp = Conv2D(filters, (3, 3), strides=stride, padding="same")(temp)
+    temp = BatchNormalization(axis=CHANNEL_AXIS)(temp)
+    temp = Activation("relu")(temp)
+    temp = Conv2D(filters, (3, 3), strides=stride, padding="same")(temp)
+
+    x = add([temp, Conv2D(filters, (3, 3), strides=stride, padding="same")(x)])
+    if pooling:
+        x = MaxPooling2D((2, 2))(x)
+    if dropout != 0.0:
+        x = Dropout(dropout)(x)
+    x = BatchNormalization(axis=CHANNEL_AXIS)(x)
+    x = Activation("relu")(x)
+    return x
+
+
+
 def keras_model(image_x, image_y):
     num_of_classes = BATCH_SIZE
-    model = Sequential()
-    model.add(Conv2D(32, (3, 3), strides=1, padding="same", activation="relu", input_shape=(28, 28, 1)))
-    model.add(Dropout(0.4))
-    model.add(Conv2D(32, (3, 3), strides=1, padding="same", activation="relu"))
-    model.add(Dropout(0.4))
-    model.add(MaxPooling2D((2, 2)))
-
-    model.add(Conv2D(64, (3, 3), strides=1, padding="same", activation="relu"))
-    model.add(Dropout(0.4))
-    model.add(Conv2D(64, (3, 3), strides=1, padding="same", activation="relu"))
-    model.add(Dropout(0.4))
-    model.add(MaxPooling2D((2, 2)))
-
-    model.add(Conv2D(128, (3, 3), strides=1, padding="same", activation="relu"))
-    model.add(Dropout(0.4))
-    model.add(Conv2D(128, (3, 3), strides=1, padding="same", activation="relu"))
-    model.add(Dropout(0.4))
-    model.add(MaxPooling2D((2, 2)))
-
-    model.add(Flatten())
-    model.add(Dense(num_of_classes, activation="softmax"))
+    inp = Input(shape=(28, 28, 1))
+    x = inp
+    x = Conv2D(16, (3, 3), strides=stride, padding="same")(x)
+    x = BatchNormalization(axis=CHANNEL_AXIS)(x)
+    x = Activation("relu")(x)
+    x = res_layer(x, 32, dropout=0.2)
+    x = res_layer(x, 32, dropout=0.3)
+    x = res_layer(x, 32, dropout=0.4, pooling=True)
+    x = res_layer(x, 32, dropout=0.2)
+    x = res_layer(x, 32, dropout=0.2, pooling=True)
+    x = res_layer(x, 256, dropout=0.4)
+    x = Flatten()(x)
+    x = Dropout(0.4)(x)
+    x = Dense(4096, activation="relu")(x)
+    x = Dropout(0.23)(x)
+    x = Dense(num_of_classes, activation="softmax")(x)
+    model = Model(inp, x, name="Resnet")
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     filepath = "QuickDraw.h5"
